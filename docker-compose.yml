@@ -12,8 +12,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - /mnt/mysql-data:/var/lib/mysql
-    networks:
-      - wpnet
+    
 
   wordpress:
     image: wordpress:latest
@@ -30,9 +29,5 @@ services:
       WORDPRESS_DB_USER: ${MYSQL_USER}
       WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
-    networks:
-      - wpnet
-
 networks:
-  wpnet:
-    driver: bridge
+  default: {}

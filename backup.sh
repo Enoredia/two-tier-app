@@ -3,6 +3,9 @@
 # Exit immediately if any command fails
 set -e
 
+# Load variables
+source .env
+
 # -----------------------------------------
 # 1. Define variables
 # -----------------------------------------
@@ -11,12 +14,12 @@ set -e
 CONTAINER_NAME="wordpress-db"
 
 # Database credentials (should match your .env)
-DB_NAME="wordpress"
-DB_USER="wpuser"
-DB_PASSWORD="strongpassword"
+MYSQL_USER=${MYSQL_USER}                # mysql DB user
+MYSQL_DATABASE=${MYSQL_DATABASE}        # mysql DB
+MYSQL_PASSWORD=${MYSQL_PASSWORD}        # mysql Password
+#S3
+S3_BUCKET="wordpress-backup-blessingg-2026"
 
-# S3 bucket name
-S3_BUCKET="wordpress-backup-blessing-2026"
 
 # Backup directory (local)
 BACKUP_DIR="/tmp"
@@ -39,7 +42,7 @@ echo "===== Starting MySQL backup ====="
 # and redirects the output to a file on the host machine
 
 docker exec $CONTAINER_NAME \
-    mysqldump -u$DB_USER -p$DB_PASSWORD $DB_NAME > "$FULL_PATH"
+    mysqldump -u$MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE > "$FULL_PATH"
 
 echo "Backup created at $FULL_PATH"
 
@@ -50,15 +53,9 @@ echo "Backup created at $FULL_PATH"
 
 S3_PATH="s3://$S3_BUCKET/$BACKUP_FILE"
 
-aws s3 cp "$FULL_PATH" "$S3_PATH"
+aws s3 cp $BACKUP_FILE s3://wordpress-backup-blessingg-2026/
 
 echo "Backup uploaded to S3: $S3_PATH"
 
-# -----------------------------------------
-# 4. Optional: Clean up local backup
-# -----------------------------------------
-# Uncomment if you want to remove local copy after upload
-
-# rm -f "$FULL_PATH"
 
 echo "===== Backup process completed successfully ====="
